@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<!--
+=========================================================================
+© 2026 Maradona. All Rights Reserved.
+
+This application, including its design, layout, animations, and source code, 
+is the intellectual property of Maradona. 
+
+Unauthorized copying, modification, reproduction, or distribution of this 
+code for use by any other business, hotel, or entity is strictly prohibited 
+and subject to legal action under European intellectual property laws.
+=========================================================================
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage Bar - Drinks Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        html { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Montserrat', sans-serif; overscroll-behavior-y: contain; }
+        .title-font { font-family: 'Playfair Display', serif; }
+        
+        /* Hide scrollbar for category row but keep functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom scrollbar for body */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+
+        /* General Menu Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-title { animation: slideDown 0.6s ease-out forwards; animation-delay: 3.5s; opacity: 0;}
+        .header-subtitle { animation: slideDown 0.6s ease-out forwards; animation-delay: 3.7s; opacity: 0; }
+
+        /* --- CREATIVE SPLASH SCREEN ANIMATIONS --- */
+        
+        /* Text fading and scaling */
+        @keyframes splashTextUp {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        /* Neon flicker effect for the main title */
+        @keyframes neonFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 0 0 10px rgba(245, 158, 11, 0.7), 0 0 20px rgba(245, 158, 11, 0.5), 0 0 30px rgba(245, 158, 11, 0.3);
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+
+        /* Rising Champagne Bubbles */
+        @keyframes rise {
+            0% { bottom: -10px; transform: translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { bottom: 100vh; transform: translateX(-20px); opacity: 0; }
+        }
+
+        .splash-text-1 { opacity: 0; animation: splashTextUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.2s; }
+        .splash-text-2 { 
+            opacity: 0; 
+            animation: 
+                splashTextUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+                neonFlicker 3s infinite alternate; 
+            animation-delay: 0.7s, 1.5s; 
+        }
+        .splash-text-3 { opacity: 0; animation: splashTextUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 1.2s; }
+        
+        /* The credit animation */
+        .splash-text-4 { opacity: 0; animation: fadeIn 1s ease-out forwards; animation-delay: 1.8s; }
+        
+        /* Icon animation */
+        @keyframes drawIcon {
+            0% { stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
+            100% { stroke-dasharray: 100; stroke-dashoffset: 0; opacity: 1; }
+        }
+        .splash-icon {
+            opacity: 0;
+            animation: splashTextUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 0.5s;
+        }
+
+        /* Bubble styles */
+        .bubble {
+            position: absolute;
+            background-color: rgba(245, 158, 11, 0.3);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .bubble:nth-child(1) { width: 10px; height: 10px; left: 20%; animation: rise 4s infinite ease-in; animation-delay: 0.1s; }
+        .bubble:nth-child(2) { width: 15px; height: 15px; left: 40%; animation: rise 3s infinite ease-in; animation-delay: 1.2s; }
+        .bubble:nth-child(3) { width: 8px; height: 8px; left: 60%; animation: rise 5s infinite ease-in; animation-delay: 0.5s; }
+        .bubble:nth-child(4) { width: 20px; height: 20px; left: 80%; animation: rise 3.5s infinite ease-in; animation-delay: 0.8s; }
+        .bubble:nth-child(5) { width: 12px; height: 12px; left: 30%; animation: rise 4.5s infinite ease-in; animation-delay: 1.5s; }
+        .bubble:nth-child(6) { width: 6px; height: 6px; left: 70%; animation: rise 3.8s infinite ease-in; animation-delay: 0.3s; }
+
+        /* --- END SPLASH SCREEN ANIMATIONS --- */
+
+        .category-btn { transition: all 0.3s ease; white-space: nowrap; }
+        .category-btn.active { 
+            background-color: #f59e0b; 
+            color: #111827; 
+            font-weight: 700; 
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); 
+        }
+
+        .menu-item { 
+            opacity: 0; 
+            animation: fadeIn 0.4s ease-out forwards; 
+            transition: all 0.2s ease;
+        }
+        .menu-item:hover { 
+            background-color: #1f2937; 
+            transform: scale(1.01); 
+            border-radius: 12px; 
+        }
+        
+        /* Utility to lock scrolling while splash is active */
+        .no-scroll { overflow: hidden; height: 100vh; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black text-gray-200 min-h-screen no-scroll">
+
+    <!-- Creative Splash Screen Overlay (Removed cursor-pointer) -->
+    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 transition-opacity duration-1000 overflow-hidden">
+        
+        <!-- Animated Champagne Bubbles -->
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+
+        <!-- Minimalist Martini Icon -->
+        <svg class="w-16 h-16 text-amber-500 mb-6 splash-icon relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21v-8m0 0L3 5h18l-9 8zm0 8a3 3 0 100-6 3 3 0 000 6z"></path>
+        </svg>
+
+        <h1 class="text-3xl md:text-4xl text-gray-300 title-font splash-text-1 relative z-10">Welcome to</h1>
+        <h2 class="text-6xl md:text-7xl font-bold text-amber-500 title-font splash-text-2 mt-2 relative z-10">Stage Bar</h2>
+        <div class="w-16 h-0.5 bg-amber-500 mt-6 rounded splash-text-3 relative z-10"></div>
+        <p class="text-gray-400 mt-4 tracking-widest uppercase text-xs md:text-sm splash-text-3 relative z-10">Unwind & Enjoy</p>
+
+        <!-- Maradona Credit -->
+        <div class="absolute bottom-8 splash-text-4 relative z-10">
+            <p class="text-gray-500 text-xs tracking-widest uppercase">Designed by Maradona</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 sm:p-6 max-w-5xl" id="main-content" style="opacity: 0; transition: opacity 1s ease-in-out;">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-white title-font header-title">Drinks Menu</h1>
+            <p class="text-amber-400 text-lg header-subtitle tracking-widest uppercase">Stage Bar</p>
+        </header>
+
+        <div class="mb-6 max-w-md mx-auto">
+            <div class="relative">
+                <input type="text" id="menu-search" aria-label="Search drinks" placeholder="Search for a drink..." 
+                    class="w-full bg-gray-800/50 border border-gray-700 text-white rounded-full py-3 px-6 pl-12 focus:outline-none focus:border-amber-500 transition-all">
+                <svg class="w-5 h-5 text-gray-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+        </div>
+
+        <div class="sticky top-0 bg-gray-900/90 backdrop-blur-md z-20 -mx-4 px-4 mb-8">
+            <div id="category-filters" class="flex flex-nowrap overflow-x-auto no-scrollbar gap-2 py-4 justify-start md:justify-center">
+            </div>
+        </div>
+
+        <div id="menu-items" class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2">
+        </div>
+    </div>
+
+   <footer class="text-center py-10 border-t border-gray-800 mt-10">
+        <p class="text-gray-500 text-sm">© 2026 Stage Bar.</p>
+        <p class="text-gray-600 text-xs mt-2 tracking-widest uppercase">Platform Design & Code © Maradona</p>
+    </footer>
+    <script>
+        const menuData = [
+            { category: "Cocktails", name: "Lime Breezer", price: "9.00", isAllIn: true, description: "Vodka, Vermouth Bianco, Triple Sec, Lime Cordial, Fresh Lemon Juice" },
+            { category: "Cocktails", name: "My Way", price: "8.00", isAllIn: true, description: "Vodka, Peach Schnapps, Orange Juice, Grenadine" },
+            { category: "Cocktails", name: "Blue Lagoon", price: "8.00", isAllIn: true, description: "Vodka, Blue Curacao, Lemonade" },
+            { category: "Cocktails", name: "Black Russian", price: "8.00", isAllIn: true, description: "Vodka, Coffee Liqueur, Cola" },
+            { category: "Cocktails", name: "Mango Mule", price: "9.00", isAllIn: true, description: "Vodka, Triple Sec, Mango Syrup, Lemon & Orange Juice" },
+            { category: "Cocktails", name: "Strawberry Martini", price: "9.00", isAllIn: false, description: "Vodka, Vermouth Bianco, Strawberry Syrup, Lemon Juice" },
+            { category: "Cocktails", name: "Cuba Libre", price: "8.00", isAllIn: true, description: "White Rum or Dark Rum, Lime Cordial, Fresh Lime, Cola" },
+            { category: "Cocktails", name: "Caipirinha", price: "9.00", isAllIn: true, description: "White Rum, Sugar Syrup, Fresh Lime, Lime Juice" },
+            { category: "Cocktails", name: "Mojito", price: "9.00", isAllIn: false, description: "White Rum, Sugar Syrup, Fresh Lime, Lime Juice, Mint Leaves, Soda Water" },
+            { category: "Cocktails", name: "Strawberry Mojito", price: "10.00", isAllIn: false, description: "White Rum, Strawberry Liqueur & Syrup, Fresh Lime, Lime Juice, Mint Leaves, Soda Water" },
+            { category: "Cocktails", name: "Pina Colada", price: "9.00", isAllIn: true, description: "White Rum, Batida de Coco, Coconut Liqueur, Pineapple Juice" },
+            { category: "Cocktails", name: "Mai Tai", price: "10.00", isAllIn: false, description: "White Rum, Black Rum, Amaretto, Triple Sec, Orange & Lemon Juice" },
+            { category: "Cocktails", name: "Gin Fizz", price: "9.00", isAllIn: true, description: "Gin, Sugar Syrup, Fresh Lime, Lemon Juice, Soda Water" },
+            { category: "Cocktails", name: "Pink Lady", price: "8.00", isAllIn: true, description: "Gin, Triple Sec, Lemon Juice, Grenadine" },
+            { category: "Cocktails", name: "Tequila Sunrise", price: "8.00", isAllIn: true, description: "Tequila, Orange Juice, Grenadine" },
+            { category: "Cocktails", name: "Frozen Margarita", price: "9.00", isAllIn: false, description: "Tequila, Triple Sec, Fresh Lemon, Lemon Juice, Crushed Ice" },
+            { category: "Cocktails", name: "Strawberry Margarita", price: "10.00", isAllIn: false, description: "Tequila, Triple Sec, Strawberry Liqueur, Sugar Syrup, Lemon Juice" },
+            { category: "Cocktails", name: "Greek Connection", price: "8.00", isAllIn: true, description: "Brandy, Amaretto, Cola" },
+            { category: "Cocktails", name: "Lazy Greek", price: "8.00", isAllIn: true, description: "Ouzo, Orange Juice, Grenadine" },
+            { category: "Cocktails", name: "Kimoa", price: "8.00", isAllIn: true, description: "Whiskey, Amaretto, Lime Cordial, Pineapple" },
+            { category: "Cocktails", name: "Aperol Spritz", price: "8.00", isAllIn: true, description: "Aperol Liqueur, Sparkling Wine, Fresh Orange, Soda Water" },
+            { category: "Cocktails", name: "Fizzy Peach Tree", price: "8.00", isAllIn: true, description: "Peach Schnapps, Blue Curacao, Lime Cordial, Soda Water" },
+            { category: "Cocktails", name: "Alien", price: "8.00", isAllIn: false, description: "Melon Liqueur, Peach Schnapps, Blue Curacao, Soda Water" },
+            { category: "Cocktails", name: "White Sangria", price: "8.00", isAllIn: false, description: "White Wine, Triple Sec, Soda Water, Fresh Lemon & Orange" },
+            { category: "Cocktails", name: "Summer Red", price: "8.00", isAllIn: false, description: "Red Wine, Vermouth Bianco, Soda Water, Fresh Lemon" },
+            { category: "Cocktails", name: "Classic Strawberry Daiquiri", price: "9.00", isAllIn: true, description: "Rum, Strawberry Liqueur & Syrup, Lemon Juice" },
+            { category: "Cocktails", name: "Frozen Strawberry Daiquiri", price: "10.00", isAllIn: false, description: "Rum, Strawberry Liqueur & Syrup, Lemon Juice" },
+            { category: "Cocktails", name: "Frozen Banana Daiquiri", price: "10.00", isAllIn: false, description: "Rum, Banana Liqueur & Syrup, Lemon Juice" },
+            { category: "Cocktails", name: "Frozen Melon Daiquiri", price: "10.00", isAllIn: false, description: "Rum, Melon Liqueur & Syrup, Lemon Juice" },
+
+            { category: "Non-Alcoholic & Soft Drinks", name: "Florida", price: "3.00", isAllIn: true, description: "Orange, Pineapple, Grenadine" },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Mix Fruit", price: "3.00", isAllIn: true, description: "Orange & Lemon Juice, Pineapple, Lime Cordial" },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Cinderella", price: "3.00", isAllIn: true, description: "Orange, Lemon & Pineapple Juice, Club Soda, Grenadine" },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Self-Service Coffee Machine", price: "2.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Espresso", price: "2.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Black Coffee", price: "2.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Cappuccino", price: "2.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Milk", price: "2.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Hot Chocolate", price: "2.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Various Hot Tea Flavors", price: "2.00", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Small Water Bottle", price: "0.50", isAllIn: false },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Water Bottle", price: "2.00", isAllIn: false },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Water by Glass", price: "FREE", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Soft Drink by Glass 250ml", price: "1.50", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Juice by Glass 330ml", price: "2.00", isAllIn: true },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Soft Drinks Can 330ml", price: "2.50", isAllIn: false },
+            { category: "Non-Alcoholic & Soft Drinks", name: "Soft Drink Bottles", price: "3.00", isAllIn: false },
+            
+            { category: "Beers & Ciders", name: "Beer by Glass 330ml", price: "2.50", isAllIn: true },
+            { category: "Beers & Ciders", name: "Amstel 500ml", price: "3.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Mythos 500ml", price: "3.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Fix 500ml", price: "3.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Greek Beers, Eza Pils 330ml", price: "3.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "Corona 330ml", price: "5.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "Bud 330ml", price: "4.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Strongbow 330ml", price: "4.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Kopparberg 500ml", price: "6.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "Magners 500ml", price: "6.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "Somersby 330ml", price: "5.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "Desperados 330ml", price: "5.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "Guinness 330ml", price: "5.00", isAllIn: false },
+            { category: "Beers & Ciders", name: "WKD Blue 330ml", price: "4.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Bacardi Breezer 330ml", price: "4.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Smirnoff Ice 330ml", price: "4.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Energy Drink 200ml", price: "4.50", isAllIn: false },
+            { category: "Beers & Ciders", name: "Cheeky Vimto", price: "6.00", isAllIn: false, description: "Bottle WKD Blue, 1 shot of port" },
+            { category: "Beers & Ciders", name: "Jaegerbomb", price: "6.00", isAllIn: false, description: "Jägermeister, Energy Drink" },
+
+            { category: "Wines & Sparkling", name: "House Wine by the Glass", price: "3.00", isAllIn: true },
+            { category: "Wines & Sparkling", name: "Vino Spumante by the Glass", price: "3.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Moscato d'Asti 200ml", price: "7.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Prosecco 200ml", price: "7.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Rosiere Rose 750ml", price: "25.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Prosecco Rose Brilla D.O.C Glera/Pinot Noir", price: "24.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Spumante", price: "10.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Asti Martini", price: "25.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Asti Martini Rose", price: "35.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Prosecco 750ml", price: "25.00", isAllIn: false },
+            { category: "Wines & Sparkling", name: "Moët & Chandon", price: "125.00", isAllIn: false },
+
+            { category: "Spirits & Liqueurs", name: "Local White Rum", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Gin", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Whisky", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Brandy", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Ouzo", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Tequila", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Vermouth Bianco", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Cafe Liqueur", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Amaretto", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Old Castle Irish Cream", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Southern Comfort", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Triple Sec", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Coconut Liqueur", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Peach Schnapps", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Strawberry Liqueur", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Apricot Liqueur", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Banana Liqueur", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Local Liqueur Red Vodka", price: "5.00", isAllIn: true },
+            { category: "Spirits & Liqueurs", name: "Grey Goose", price: "10.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Belvedere", price: "10.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Smirnoff", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Absolut", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Stolichnaya", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Serkova", price: "6.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Blue Vodka", price: "5.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Red Vodka", price: "5.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Bombay", price: "9.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Tanqueray", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Beefeater", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Gordon's", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Gordon's Pink", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Bacardi", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Bacardi Black", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Bacardi Spiced", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Captain Morgan", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Havana Club White", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Havana Club Black", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Metaxa 3*", price: "5.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Metaxa 5*", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Metaxa 7*", price: "8.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Courvoisier V.S.O.P", price: "12.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Johnnie Walker Red", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Johnnie Walker Black", price: "10.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Famous Grouse", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Jameson", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Ballantine's", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Cutty Sark", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Grant's", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Jack Daniel's", price: "9.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Chivas Regal 12y", price: "10.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Glenfiddich 12y", price: "12.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Glenmorangie 10y", price: "12.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Ouzo 12", price: "5.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Tsipouro", price: "5.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Campari", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Martini", price: "6.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Aperol", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Jägermeister", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Jose Cuervo Gold / Silver", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Archers", price: "6.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Passoa Tropical", price: "6.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Bailey's", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Tia Maria", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Amaretto Disaronno", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Cointreau", price: "8.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Southern Comfort", price: "7.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Drambuie", price: "8.00", isAllIn: false },
+            { category: "Spirits & Liqueurs", name: "Sambuca", price: "7.00", isAllIn: false }
+        ];
+
+        const categoryIcons = {
+            'All': '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>',
+            'Cocktails': '🍸',
+            'Non-Alcoholic & Soft Drinks': '🥤',
+            'Beers & Ciders': '🍺',
+            'Wines & Sparkling': '🍷',
+            'Spirits & Liqueurs': '🥃'
+        };
+
+        const menuItemsContainer = document.getElementById('menu-items');
+        const categoryFiltersContainer = document.getElementById('category-filters');
+        const searchInput = document.getElementById('menu-search');
+
+        let activeCategory = 'All';
+        let searchQuery = '';
+        
+        // This keeps track of whether the app has passed the splash screen
+        let isAppLoaded = false; 
+
+        const renderMenu = () => {
+            menuItemsContainer.innerHTML = '';
+            
+            const filteredMenu = menuData.filter(item => {
+                const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                     (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchesCategory && matchesSearch;
+            });
+
+            if(filteredMenu.length === 0) {
+                menuItemsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <span class="text-4xl block mb-3 opacity-50">🧊</span>
+                        <p>No drinks found matching "${searchQuery}"</p>
+                    </div>`;
+                return;
+            }
+
+            filteredMenu.forEach((item, index) => {
+                const menuItemElement = document.createElement('div');
+                menuItemElement.className = 'menu-item flex justify-between items-center py-4 px-4 border-b border-gray-800/50';
+                
+                // If the app is already loaded, items appear instantly (0 delay). 
+                // If it's the very first load, they wait 3 seconds for the splash screen.
+                const baseDelay = isAppLoaded ? 0 : 3000;
+                menuItemElement.style.animationDelay = `${baseDelay + (index * 30)}ms`;
+                
+                const displayPrice = item.price === "FREE" ? "FREE" : `${item.price}€`;
+
+                menuItemElement.innerHTML = `
+                    <div class="pr-4">
+                        <h3 class="font-bold text-white transition-colors duration-300">${item.name}</h3>
+                        ${item.description ? `<p class="text-xs text-gray-400 mt-1 italic leading-relaxed">${item.description}</p>` : ''}
+                    </div>
+                    <div class="text-right min-w-[80px]">
+                        <p class="font-bold text-amber-400">${displayPrice}</p>
+                        ${item.isAllIn ? `<span class="text-[10px] bg-cyan-900/30 text-cyan-400 px-2 py-0.5 rounded border border-cyan-800/50 font-bold uppercase tracking-tighter inline-block mt-1">Included</span>` : ''}
+                    </div>
+                `;
+                menuItemsContainer.appendChild(menuItemElement);
+            });
+        };
+
+        const renderCategories = () => {
+            const categories = ['All', ...new Set(menuData.map(item => item.category))];
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                const icon = categoryIcons[category] || '';
+                button.innerHTML = `<span>${icon}</span> <span>${category}</span>`;
+                button.className = 'category-btn px-5 py-2 text-sm font-medium rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 flex items-center gap-2 border border-gray-700';
+                
+                if (category === activeCategory) button.classList.add('active');
+                
+                button.addEventListener('click', () => {
+                    activeCategory = category;
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    renderMenu();
+
+                    // Scroll button into view on mobile
+                    button.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                });
+                categoryFiltersContainer.appendChild(button);
+            });
+        };
+
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderMenu();
+        });
+
+        // Splash screen logic
+        const removeSplashScreen = () => {
+            const splash = document.getElementById('splash-screen');
+            const body = document.body;
+            const mainContent = document.getElementById('main-content');
+            
+            if (splash && !isAppLoaded) {
+                isAppLoaded = true; // Tell the app it's fully loaded now
+                splash.style.opacity = '0';
+                mainContent.style.opacity = '1';
+
+                setTimeout(() => {
+                    splash.remove();
+                    body.classList.remove('no-scroll');
+                }, 1000); // Matches the CSS transition duration
+            }
+        };
+
+        window.onload = () => {
+            renderCategories();
+            renderMenu();
+
+            // The splash screen stays up for exactly 3.2 seconds now. No early skipping!
+            setTimeout(removeSplashScreen, 3200);
+        };
+    </script>
+</body>
+</html>
